@@ -15,8 +15,11 @@
     </strong>
     <p>Click the button below to check your camera's capabilities.</p>
     <button id="checkCapabilitiesBtn">Check Camera Capabilities</button>
+    <p id="whiteBalance"></p>
+    <p id="facingMode"></p>
+    <p id="frameRate"></p>
+    <p id="whiteBalance"></p>
     <p id="capabilities"></p>
-    <p id="cameraName"></p>
 
     <script>
         document.getElementById('checkCapabilitiesBtn').addEventListener('click', async () => {
@@ -24,8 +27,11 @@
                 const stream = await navigator.mediaDevices.getUserMedia({ video: true });
                 const track = stream.getVideoTracks()[0];
                 const capabilities = track.getCapabilities();
-                const capabilitiesString = JSON.stringify(capabilities, null, 2);
-                document.getElementById('capabilities').innerText = capabilitiesString;
+                // const capabilitiesString = JSON.stringify(capabilities, null, 2);
+                // document.getElementById('capabilities').innerText = capabilitiesString;
+                document.getElementById('whiteBalance').innerText = `whiteBalanceMode: `+JSON.stringify(capabilities.whiteBalanceMode);
+                document.getElementById('facingMode').innerText = `facingMode: `+JSON.stringify(capabilities.facingMode);
+                document.getElementById('frameRate').innerText = `frameRate: `+JSON.stringify(capabilities.frameRate);
 
                 // Check if the device is Windows, Mac, Android, iOS, or Ubuntu and aspect ratio is within the specified range
                 const deviceType = detectDevice();
