@@ -1,0 +1,90 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Camera Capabilities</title>
+</head>
+
+<body>
+    <h1>Device Information & Camera Capabilities</h1>
+    <p id="deviceInfo"></p>
+    <strong>
+        <p id="cameraStatus"></p>
+    </strong>
+    <p>Click the button below to check your camera's capabilities.</p>
+    <button id="checkCapabilitiesBtn">Check Camera Capabilities</button>
+    <p id="capabilities"></p>
+    <p id="cameraName"></p>
+
+    <script>
+        document.getElementById('checkCapabilitiesBtn').addEventListener('click', async () => {
+            try {
+                const stream = await navigator.mediaDevices.getUserMedia({ video: true });
+                const track = stream.getVideoTracks()[0];
+                const capabilities = track.getCapabilities();
+                const capabilitiesString = JSON.stringify(capabilities, null, 2);
+                document.getElementById('capabilities').innerText = capabilitiesString;
+
+                // Check if the device is Windows, Mac, Android, iOS, or Ubuntu and aspect ratio is within the specified range
+                const deviceType = detectDevice();
+                const isRealCamera = checkRealCamera(capabilities);
+                if (isRealCamera) {
+                    document.getElementById('cameraStatus').innerText = "This is a real camera!";
+                } else {
+                    document.getElementById('cameraStatus').innerText = "This may not be a real camera.";
+                }
+
+                // Get the name of the camera device
+                const cameraName = track.label;
+                document.getElementById('cameraName').innerText = `Camera Name: ${cameraName}`;
+
+                stream.getTracks().forEach(track => track.stop());
+            } catch (error) {
+                console.error('Error accessing camera:', error);
+                document.getElementById('capabilities').innerText = 'Error accessing camera. Please check your permissions.';
+            }
+        });
+
+        // Function to detect device type
+        function detectDevice() {
+            const userAgent = navigator.userAgent;
+            let deviceInfo = '';
+
+            if (userAgent.match(/Macintosh/i)) {
+                deviceInfo = 'Mac';
+            } else if (userAgent.match(/Windows/i)) {
+                deviceInfo = 'Windows';
+            } else if (userAgent.match(/Android/i)) {
+                deviceInfo = 'Android';
+            } else if (userAgent.match(/iPhone|iPad|iPod/i)) {
+                deviceInfo = 'iOS';
+            } else if (userAgent.match(/Linux/i) && userAgent.match(/Ubuntu/i)) {
+                deviceInfo = 'Ubuntu';
+            } else if (userAgent.match(/Linux/i)) {
+                deviceInfo = 'Linux';
+            } else {
+                deviceInfo = 'Unknown';
+            }
+
+            document.getElementById('deviceInfo').innerText = `Device Type: ${deviceInfo}`;
+            return deviceInfo;
+        }
+
+        // Function to check if it's a real camera based on aspect ratio
+        function checkRealCamera(capabilities) {
+            const aspectRatio = capabilities.aspectRatio;
+            const maxAspectRatio = aspectRatio.max;
+            const minAspectRatio = aspectRatio.min;
+
+            if ('whiteBalanceMode' in capabilities && 'facingMode' in capabilities && 'frameRate' in capabilities) {
+                return true;
+            } else {
+                return false;
+            }
+        }
+    </script>
+</body>
+
+</html>
